@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Component;
 import javax.swing.*;  
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -346,6 +348,7 @@ public class calender extends javax.swing.JFrame {
 
     
     private void jCalendar1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jCalendar1PropertyChange
+        setColor();
         Date date = jCalendar1.getDate();
     String strDate = DateFormat.getDateInstance().format(date);
     boolean flag = false;
@@ -404,13 +407,45 @@ public class calender extends javax.swing.JFrame {
     }
 
     if(flag==true){
-        JOptionPane.showMessageDialog(null,"Successfully Deleted"); 
+        setColor();
+        JOptionPane.showMessageDialog(null,"Successfully Deleted Events on "+strDate); 
     }
     else{
-        JOptionPane.showMessageDialog(null,"No Events for the Date");
+        JOptionPane.showMessageDialog(null,"No Events for "+strDate);
         }// TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
+    
+    private void setColor() {
+       Date date = jCalendar1.getDate();
+       String strDate = DateFormat.getDateInstance().format(date);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(jCalendar1.getDate());
+        JPanel jpanel = jCalendar1.getDayChooser().getDayPanel();
+        Component component[] = jpanel.getComponents();
+        //  
 
+    for(int i=0;i<component.length; i++) {
+        component[i].setBackground(null);
+    }
+    ////arraylist of events
+    for(int i = 0; i < events.size(); i++)
+    {
+        //selected month and year on JCalendar
+        if(events.get(i).date.substring(2).equals(strDate.substring(2)))
+        {
+         // Calculate the offset of the first day of the month
+         cal.set(Calendar.DAY_OF_MONTH,1);
+         int offset = cal.get(Calendar.DAY_OF_WEEK) - 1;
+
+        //this value will differ from each month due to first days of each month
+         component[ Integer.parseInt(events.get(i).date.substring(0, 2)) + 7 + offset - 1].setBackground(Color.yellow); 
+        }
+    }
+}
+    
+    
+    
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         boolean f=false;
@@ -430,11 +465,12 @@ public class calender extends javax.swing.JFrame {
         ev.desc=jTextField3.getText();
         //try{
         if(f==true || ev.title.isEmpty() || ev.location.isEmpty() || ev.desc.isEmpty()){
-            JOptionPane.showMessageDialog(null,"All Fields are Required");
+            JOptionPane.showMessageDialog(null,"All Fields are Mandatory");
         }
         else{
             events.add(ev);
-            JOptionPane.showMessageDialog(null,"Successfully Created");
+            setColor();
+            JOptionPane.showMessageDialog(null,"Successfully Created Event on "+ev.date);
         }
         //}
 //        catch(Exception e){
