@@ -1,11 +1,19 @@
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.*;  
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -23,7 +31,248 @@ class Events {
     String location;
     String desc;
 }
+class DesktopApi {
 
+    public static boolean browse(URI uri) {
+
+        if (openSystemSpecific(uri.toString())) return true;
+
+        if (browseDESKTOP(uri)) return true;
+
+        return false;
+    }
+
+
+    public static boolean open(File file) {
+
+        if (openSystemSpecific(file.getPath())) return true;
+
+        if (openDESKTOP(file)) return true;
+
+        return false;
+    }
+
+
+    public static boolean edit(File file) {
+
+        // you can try something like
+        // runCommand("gimp", "%s", file.getPath())
+        // based on user preferences.
+
+        if (openSystemSpecific(file.getPath())) return true;
+
+        if (editDESKTOP(file)) return true;
+
+        return false;
+    }
+
+
+    private static boolean openSystemSpecific(String what) {
+
+        EnumOS os = getOs();
+
+        if (os.isLinux()) {
+            if (runCommand("kde-open", "%s", what)) return true;
+            if (runCommand("xdg-open", "%s", what)) return true;
+            if (runCommand("xdg-open", "%s", what)) return true;
+        }
+
+        if (os.isMac()) {
+            if (runCommand("open", "%s", what)) return true;
+        }
+
+        if (os.isWindows()) {
+            if (runCommand("explorer", "%s", what)) return true;
+        }
+
+        return false;
+    }
+
+
+    private static boolean browseDESKTOP(URI uri) {
+
+        logOut("Trying to use Desktop.getDesktop().browse() with " + uri.toString());
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                logErr("Platform is not supported.");
+                return false;
+            }
+
+            if (!Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                logErr("BROWSE is not supported.");
+                return false;
+            }
+
+            Desktop.getDesktop().browse(uri);
+
+            return true;
+        } catch (Throwable t) {
+            logErr("Error using desktop browse.", t);
+            return false;
+        }
+    }
+
+
+    private static boolean openDESKTOP(File file) {
+
+        logOut("Trying to use Desktop.getDesktop().open() with " + file.toString());
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                logErr("Platform is not supported.");
+                return false;
+            }
+
+            if (!Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                logErr("OPEN is not supported.");
+                return false;
+            }
+
+            Desktop.getDesktop().open(file);
+
+            return true;
+        } catch (Throwable t) {
+            logErr("Error using desktop open.", t);
+            return false;
+        }
+    }
+
+
+    private static boolean editDESKTOP(File file) {
+
+        logOut("Trying to use Desktop.getDesktop().edit() with " + file);
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                logErr("Platform is not supported.");
+                return false;
+            }
+
+            if (!Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
+                logErr("EDIT is not supported.");
+                return false;
+            }
+
+            Desktop.getDesktop().edit(file);
+
+            return true;
+        } catch (Throwable t) {
+            logErr("Error using desktop edit.", t);
+            return false;
+        }
+    }
+
+
+    private static boolean runCommand(String command, String args, String file) {
+
+        logOut("Trying to exec:\n   cmd = " + command + "\n   args = " + args + "\n   %s = " + file);
+
+        String[] parts = prepareCommand(command, args, file);
+
+        try {
+            Process p = Runtime.getRuntime().exec(parts);
+            if (p == null) return false;
+
+            try {
+                int retval = p.exitValue();
+                if (retval == 0) {
+                    logErr("Process ended immediately.");
+                    return false;
+                } else {
+                    logErr("Process crashed.");
+                    return false;
+                }
+            } catch (IllegalThreadStateException itse) {
+                logErr("Process is running.");
+                return true;
+            }
+        } catch (IOException e) {
+            logErr("Error running command.", e);
+            return false;
+        }
+    }
+
+
+    private static String[] prepareCommand(String command, String args, String file) {
+
+        List<String> parts = new ArrayList<String>();
+        parts.add(command);
+
+        if (args != null) {
+            for (String s : args.split(" ")) {
+                s = String.format(s, file); // put in the filename thing
+
+                parts.add(s.trim());
+            }
+        }
+
+        return parts.toArray(new String[parts.size()]);
+    }
+
+    private static void logErr(String msg, Throwable t) {
+        System.err.println(msg);
+        t.printStackTrace();
+    }
+
+    private static void logErr(String msg) {
+        System.err.println(msg);
+    }
+
+    private static void logOut(String msg) {
+        System.out.println(msg);
+    }
+
+    public static enum EnumOS {
+        linux, macos, solaris, unknown, windows;
+
+        public boolean isLinux() {
+
+            return this == linux || this == solaris;
+        }
+
+
+        public boolean isMac() {
+
+            return this == macos;
+        }
+
+
+        public boolean isWindows() {
+
+            return this == windows;
+        }
+    }
+
+
+    public static EnumOS getOs() {
+
+        String s = System.getProperty("os.name").toLowerCase();
+
+        if (s.contains("win")) {
+            return EnumOS.windows;
+        }
+
+        if (s.contains("mac")) {
+            return EnumOS.macos;
+        }
+
+        if (s.contains("solaris")) {
+            return EnumOS.solaris;
+        }
+
+        if (s.contains("sunos")) {
+            return EnumOS.solaris;
+        }
+
+        if (s.contains("linux")) {
+            return EnumOS.linux;
+        }
+
+        if (s.contains("unix")) {
+            return EnumOS.linux;
+        } else {
+            return EnumOS.unknown;
+        }
+    }
+}
 
 public class calender extends javax.swing.JFrame {
     ArrayList<Events> events = new ArrayList<Events>();;
@@ -67,6 +316,8 @@ public class calender extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 255));
@@ -172,6 +423,15 @@ public class calender extends javax.swing.JFrame {
         jLabel15.setFont(new java.awt.Font("Dialog", 1, 19)); // NOI18N
         jLabel15.setText("15");
 
+        jLabel16.setText("--------------------------------------------------------------------------------------------------");
+
+        jButton3.setText("Close");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -219,18 +479,22 @@ public class calender extends javax.swing.JFrame {
                                             .addComponent(jXDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(143, 143, 143)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(102, 102, 102)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
-                                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(143, 143, 143)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(58, 58, 58)
+                                .addComponent(jLabel1))
+                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addComponent(jLabel1)
+                .addGap(102, 102, 102)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -277,11 +541,15 @@ public class calender extends javax.swing.JFrame {
                         .addComponent(jLabel15)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel12)))
-                .addGap(58, 58, 58)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGap(48, 48, 48)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton3)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -356,7 +624,20 @@ public class calender extends javax.swing.JFrame {
         if(strDate.equals(ev.date)) {
             jLabel15.setText("");
             jLabel8.setText(ev.title);
-            jLabel2.setText(ev.location);
+            jLabel2.setText("<html><a href='http://google.com'>" +ev.location+"</a></html>");
+            jLabel2.addMouseListener(new MouseAdapter() {
+ 
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    DesktopApi.browse(new URI("http://www.google.com/maps/search/"+ev.location));
+                } 
+                catch (IOException | URISyntaxException e1) {
+                    e1.printStackTrace();
+                }
+            }
+ 
+        });
             jLabel13.setText(ev.desc);
             flag = true;
         }
@@ -479,6 +760,10 @@ public class calender extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -523,6 +808,7 @@ public class calender extends javax.swing.JFrame {
     private com.mindfusion.scheduling.CalendarAdapter calendarAdapter1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private com.toedter.calendar.JCalendar jCalendar1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -531,6 +817,7 @@ public class calender extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
