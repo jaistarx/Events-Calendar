@@ -196,9 +196,6 @@ public class calender extends javax.swing.JFrame {
                                     .addComponent(jLabel13, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(48, 48, 48)
-                                .addComponent(jLabel1))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(26, 26, 26)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
@@ -229,13 +226,17 @@ public class calender extends javax.swing.JFrame {
                                     .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(58, 58, 58)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -382,19 +383,64 @@ public class calender extends javax.swing.JFrame {
     }//GEN-LAST:event_jXDatePicker1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        JOptionPane.showMessageDialog(null,"Successfully Deleted");        // TODO add your handling code here:
+    Date date = jCalendar1.getDate();
+    String strDate = DateFormat.getDateInstance().format(date);
+    boolean flag = false;
+//    for(Events ev: events) {
+//        if(strDate.equals(ev.date)) {
+//            events.remove(ev);
+//            flag = true;
+//        }
+//    }
+    Iterator<Events> iter = events.iterator();
+
+    while (iter.hasNext()) {
+        Events ev = iter.next();
+
+        if (strDate.equals(ev.date)){
+            iter.remove();
+            flag=true;
+        }
+    }
+
+    if(flag==true){
+        JOptionPane.showMessageDialog(null,"Successfully Deleted"); 
+    }
+    else{
+        JOptionPane.showMessageDialog(null,"No Events for the Date");
+        }// TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
+        boolean f=false;
         Events ev = new Events();
         Date date = jXDatePicker1.getDate();
+        try{
         String strDate = DateFormat.getDateInstance().format(date);
         ev.date = strDate;
+        
+        }
+        catch(Exception e){
+            f=true;
+        }
+        
         ev.title = jTextField1.getText();
         ev.location = jTextField2.getText();
         ev.desc=jTextField3.getText();
-        events.add(ev);
+        //try{
+        if(f==true || ev.title.isEmpty() || ev.location.isEmpty() || ev.desc.isEmpty()){
+            JOptionPane.showMessageDialog(null,"All Fields are Required");
+        }
+        else{
+            events.add(ev);
+            JOptionPane.showMessageDialog(null,"Successfully Created");
+        }
+        //}
+//        catch(Exception e){
+//            JOptionPane.showMessageDialog(null,"All Fields are Required");
+//        }
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
