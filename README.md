@@ -2,9 +2,14 @@
 
 A desktop application made using Java Swing to create calendar events
 
+## Requirements
+
+Java Runtime Environment
+
 ## To Run
 
 #### On Any Platform
+
 Run from the parent directory(Events-Calendar)
 ```
 cd calendar/target
