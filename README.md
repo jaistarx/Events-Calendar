@@ -14,7 +14,10 @@ cd calendar
 ```
 
 #### On Windows
-
-1.Open calendar
-
-2.Excecute calendarwi.cmd
+Run from the parent directory(Events-Calendar)
+```
+cd calendar
+```
+```
+calendarwi.cmd
+```
