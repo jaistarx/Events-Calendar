@@ -1,8 +1,10 @@
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -291,7 +293,6 @@ public class calender extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        calendarAdapter1 = new com.mindfusion.scheduling.CalendarAdapter();
         jPanel1 = new javax.swing.JPanel();
         jCalendar1 = new com.toedter.calendar.JCalendar();
         jPanel2 = new javax.swing.JPanel();
@@ -625,6 +626,7 @@ public class calender extends javax.swing.JFrame {
             jLabel15.setText("");
             jLabel8.setText(ev.title);
             jLabel2.setText("<html><a href='http://google.com'>" +ev.location+"</a></html>");
+            jLabel2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             jLabel2.addMouseListener(new MouseAdapter() {
  
             @Override
@@ -632,7 +634,7 @@ public class calender extends javax.swing.JFrame {
                 try {
                     DesktopApi.browse(new URI("http://www.google.com/maps/search/"+ev.location));
                 } 
-                catch (IOException | URISyntaxException e1) {
+                catch (URISyntaxException e1) {
                     e1.printStackTrace();
                 }
             }
@@ -805,7 +807,6 @@ public class calender extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.mindfusion.scheduling.CalendarAdapter calendarAdapter1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
