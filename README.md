@@ -5,16 +5,16 @@ A desktop application made using Java Swing to create calendar events
 ## To Run
 
 #### On Linux
-Run from the parent directory
+Run from the parent directory(Events-Calendar)
 ```
 cd calendar
 ```
 ```
-./calendar.sh
+./calendarli.sh
 ```
 
 #### On Windows
 
 Open calendar
 
-Excecute calendar.cmd
+Excecute calendarwi.cmd
