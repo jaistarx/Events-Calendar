@@ -25,7 +25,7 @@ cd calendar/scripts
 #### On Windows
 Run from the parent directory(Events-Calendar)
 ```
-cd calendar
+cd calendar/scripts
 ```
 ```
 calendarwi.cmd
