@@ -13,7 +13,7 @@ sudo apt-get install maven
 
 ## To run
 
-#### Linux
+#### On Linux
 
 Run from the parent directory
 
@@ -26,6 +26,6 @@ or
 ./calendar.sh
 ```
 
-#### Windows
+#### On Windows
 
 open calendar.cmd
