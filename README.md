@@ -15,6 +15,6 @@ cd calendar
 
 #### On Windows
 
-Open calendar
+1.Open calendar
 
-Excecute calendarwi.cmd
+2.Excecute calendarwi.cmd
