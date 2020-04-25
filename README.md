@@ -4,7 +4,7 @@ A desktop application made using Java Swing to create calendar events
 
 ## Requirements
 
-Java(Java Runtime Environment)
+Java(Java SE Runtime Environment)
 
 ## To Run
 
