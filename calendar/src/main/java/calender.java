@@ -4,6 +4,7 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -74,8 +75,6 @@ class DesktopApi {
         EnumOS os = getOs();
 
         if (os.isLinux()) {
-            if (runCommand("xdg-open", "%s", what)) return true;
-            if (runCommand("xdg-open", "%s", what)) return true;
             if (runCommand("xdg-open", "%s", what)) return true;
         }
 
@@ -625,8 +624,11 @@ public class calender extends javax.swing.JFrame {
         if(strDate.equals(ev.date)) {
             jLabel15.setText("");
             jLabel8.setText(ev.title);
-            jLabel2.setText("<html><a href='http://google.com'>" +ev.location+"</a></html>");
+            jLabel2.setText("<html><a href='http://google.com'>"+ev.location+"</a></html>");
             jLabel2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            for(MouseListener ms : jLabel2.getMouseListeners()) {
+                jLabel2.removeMouseListener(ms);
+            }
             jLabel2.addMouseListener(new MouseAdapter() {
  
             @Override
