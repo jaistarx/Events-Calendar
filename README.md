@@ -8,8 +8,8 @@ jdk(Java SE Development Kit)
 
 ## Dependencies
 
-1.JCalendar.jar\\
-2.JXDatePicker.jar
+1.JCalendar.jar  
+2.JXDatePicker.jar  
 
 ## To Run
 
