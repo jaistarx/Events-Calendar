@@ -6,7 +6,7 @@ A desktop application made using Java Swing to create calendar events
 
 jdk(Java SE Development Kit)
 
-##Dependencies
+## Dependencies
 
 1.JCalendar.jar
 2.JXDatePicker.jar
