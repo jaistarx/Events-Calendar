@@ -31,7 +31,13 @@ cd calendar/scripts
 
 Run from the parent directory(Events-Calendar)
 ```
-cd calendar/scripts
+cd calendar
+```
+```
+mvnw clean package
+```
+```
+cd scripts
 ```
 ```
 calendarwi.cmd
