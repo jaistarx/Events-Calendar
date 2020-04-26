@@ -4,7 +4,7 @@ A desktop application made using Java Swing to create calendar events
 
 ## Requirements
 
-Java(Java SE Runtime Environment)
+jdk(Java SE Development Kit)
 
 ## To Run
 
@@ -31,13 +31,7 @@ cd calendar/scripts
 
 Run from the parent directory(Events-Calendar)
 ```
-cd calendar
-```
-```
-mvnw clean package
-```
-```
-cd scripts
+cd calendar/scripts
 ```
 ```
 calendarwi.cmd
